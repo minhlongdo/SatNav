@@ -38,7 +38,7 @@ class SatNav:
             all_streets.add(dest)
             if start not in graph.keys():
                 graph[start] = {dest:length}
-                graph[start][start] = -1
+                graph[start][start] = None
             else:
                 graph[start][dest] = length
         # Mark all other streets that were left out with -1
@@ -47,10 +47,8 @@ class SatNav:
             if graph[key].keys() != len(all_streets):
                 recorded = graph[key].keys()
                 diff = all_streets.difference(recorded)
-                print "Key:", start
-                print "Diff:", diff, "\n"
                 for d in diff:
-                    graph[key][d] = -1
+                    graph[key][d] = None
 
         return graph
 
@@ -78,23 +76,24 @@ class SatNav:
         length = 0
         for x in range(1, len(route)):
             start, dest = route[x-1], route[x]
-            if self.routes[start][dest] > 0:
+            if self.routes[start][dest] is not None:
                 length += self.routes[start][dest]
             else:
                 return "NO SUCH ROUTE"
         return length
 
 
-    def __dijkstra(self, start, dest, visited=[], distances={}, predecessors={}):
+    def __dijkstra(self, start, dest):
         """
         Dijkstra algorithm.
         """
-        # Check if starting node exists
-        if start not in self.routes:
+        # Check if starting and destination nodes exist
+        if start not in self.routes.keys():
             raise TypeError("Root cannot be found in graph.")
-        if dest not in self.routes:
+        if dest not in self.routes.keys():
             raise TypeError("Destination cannot be found in graph.")
-        pass
+            pass
+
 
 
     def shortest_route(self, start, dest):
