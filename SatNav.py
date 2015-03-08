@@ -111,16 +111,16 @@ class SatNav:
             # The first one is the smallest in this list of neighbours
             current, currentDistance = sorted(candidates, key=lambda x: x[1])[0]
 
+        # Check if the destination is the same as the source
         if start == dest:
             min_dist = float('inf')
 
+            # Go through each starting node
             for key in self.routes.keys():
-                for val, dist in self.routes[key].items():
-                    if val == dest:
-                        if val in visited.keys():
-                            if key in visited.keys():
-                                min_dist = min(min_dist, visited[key] + dist)
-                            break
+                # Go through each connected node of the
+                if dest in self.routes[key]:
+                    if key in visited.keys():
+                        min_dist = min(min_dist, visited[key] + self.routes[key][dest])
 
             if min_dist == float('inf'):
                 return "NO SUCH ROUTE"
@@ -135,7 +135,7 @@ class SatNav:
         """
         Calculate the shortest distance between two streets by using Dijkstra's algorithm.
         E.g.
-            satNat = SatNat()
+            satNat = SatNat(streets = ['AB5', 'BC4', 'CD7', 'DC8', 'DE6', 'AD5', 'CE2', 'EB3', 'AE7'])
 
             print satNat.shortest_route("A", "C")
             9
