@@ -117,7 +117,7 @@ class SatNav:
 
             # Go through each starting node
             for key in self.routes.keys():
-                # Go through each connected node of the
+                # Check if this node is connected to the starting node
                 if dest in self.routes[key]:
                     if key in visited.keys():
                         min_dist = min(min_dist, visited[key] + self.routes[key][dest])
