@@ -37,7 +37,6 @@ class SatNav:
             all_streets.add(dest)
             if start not in graph.keys():
                 graph[start] = {dest:length}
-                graph[start][start] = None
             else:
                 graph[start][dest] = length
 
@@ -79,6 +78,21 @@ class SatNav:
                 return "NO SUCH ROUTE"
         return length
 
+    def __dijkstra_extract_min(self, start, visited=[]):
+        min_node = None
+        min_dist = None
+        # Go through all the links in
+        for v in self.routes[start].keys():
+            if v not in visited:
+                if min_node is None:
+                    min_node = v
+                    min_dist = self.routes[start][v]
+                else:
+                    if self.routes[start][v] < min_dist:
+                        min_node = v
+                        min_dist = self.routes[start][v]
+        return min_node
+
 
     def __dijkstra(self, start, dest):
         """
@@ -86,25 +100,21 @@ class SatNav:
         """
         # Check if starting and destination nodes exist
         if start not in self.routes.keys():
-            raise TypeError("Root cannot be found in graph.")
-        if dest not in self.routes.keys():
-            raise TypeError("Destination cannot be found in graph.")
+            return "NO SUCH ROUTE"
+        if dest not in self.routes:
+            return "NO SUCH ROUTE"
         pass
+
+
+
 
 
     def shortest_route(self, start, dest):
         """
-        Calculate the shortest distance between two streets.
-        Using Djikstra algorith to find the shortest route from starting street to destination street.
-
-        Args:
-            start (str): Starting street.
-            dest (str): Destination street.
-
-        Returns:
-            int: Shortest route length, -1 otherwise
+        Calculate the shortest distance between two streets by using Dijkstra's algorithm.
         """
-        pass
+
+        return self.__dijkstra(start, dest)
 
 
     def min_junctions(self, start, dest):
@@ -158,6 +168,9 @@ class SatNavTest(unittest.TestCase):
 
     def testNormalRoute5(self):
         self.assertEqual("NO SUCH ROUTE", self.satNav.normal_route("AED"))
+
+    def testShortestRoute1(self):
+        self.assertEqual(9, self.satNav.shortest_route("A", "C"))
 
     def tearDown(self):
         pass
