@@ -3,13 +3,7 @@
 import unittest
 
 class SatNav:
-    """
-    Attributes
-    ----------
 
-    Examples
-    --------
-    """
     def __init__(self, streets = ['AB5', 'BC4', 'CD7', 'DC8', 'DE6', 'AD5', 'CE2', 'EB3', 'AE7']):
         """
         This initialize the SatNav with the routes and its given distances.
@@ -19,7 +13,7 @@ class SatNav:
         Args:
             streets (list): A list of street names. Default to ['AB5', 'BC4', 'CD7', 'DC8', 'DE6', 'AD5', 'CE2', 'EB3', 'AE7']
         """
-        self.routes = self.__construct_graph(streets)
+        self.all_streets, self.routes = self.__construct_graph(streets)
 
 
     def __split_nodes(self, street):
@@ -33,6 +27,7 @@ class SatNav:
         for street in streets:
             # Extract start and destination streets and their length
             start, dest, length = self.__split_nodes(street)
+            # Records name of streets
             all_streets.add(start)
             all_streets.add(dest)
             if start not in graph.keys():
@@ -40,8 +35,7 @@ class SatNav:
             else:
                 graph[start][dest] = length
 
-        return graph
-
+        return all_streets, graph
 
 
     def normal_route(self, route):
@@ -67,51 +61,90 @@ class SatNav:
         for x in range(1, len(route)):
             start, dest = route[x-1], route[x]
 
-            if start not in self.routes:
+            if start not in self.routes.keys():
                 return "NO SUCH ROUTE"
-            if dest not in self.routes:
+            if dest not in self.routes[start].keys():
                 return "NO SUCH ROUTE"
 
-            if dest in self.routes[start]:
-                length += self.routes[start][dest]
-            else:
-                return "NO SUCH ROUTE"
+            length += self.routes[start][dest]
+
         return length
-
-    def __dijkstra_extract_min(self, start, visited=[]):
-        min_node = None
-        min_dist = None
-        # Go through all the links in
-        for v in self.routes[start].keys():
-            if v not in visited:
-                if min_node is None:
-                    min_node = v
-                    min_dist = self.routes[start][v]
-                else:
-                    if self.routes[start][v] < min_dist:
-                        min_node = v
-                        min_dist = self.routes[start][v]
-        return min_node
 
 
     def __dijkstra(self, start, dest):
         """
         Using Dijkstra's algorithm since it can be safely assumed that there are no negative distance values.
         """
-        # Check if starting and destination nodes exist
-        if start not in self.routes.keys():
-            return "NO SUCH ROUTE"
-        if dest not in self.routes:
-            return "NO SUCH ROUTE"
-        pass
 
+        # Initialize empty visited dict() to record already visited nodes
+        visited = dict()
+        # Initialize all unvisited nodes with None for +inf
+        unvisited = {node : None for node in self.all_streets}
+        current = start
+        currentDistance = 0
+        unvisited[current] = currentDistance
 
+        while True:
+            for neighbour, distance in self.routes[current].items():
+                if neighbour not in unvisited:
+                    continue
+                newDistance = currentDistance + distance
+                if unvisited[neighbour] is None or unvisited[neighbour] > newDistance:
+                    unvisited[neighbour] = newDistance
+            # Record visited node with its distance
+            visited[current] = currentDistance
 
+            # Delete element from unvisited
+            del unvisited[current]
+
+            # Ending condition: no unvisited nodes left
+            if not unvisited:
+                break
+
+            # Get all nodes from the unvisited collection with a non-None value
+            candidates = [node for node in unvisited.items() if node[1]]
+
+            if not candidates:
+                break
+
+            # Sort candidates in ascending order
+            # The first one is the smallest in this list of neighbours
+            current, currentDistance = sorted(candidates, key=lambda x: x[1])[0]
+
+        if start == dest:
+            min_dist = float('inf')
+
+            for key in self.routes.keys():
+                for val, dist in self.routes[key].items():
+                    if val == dest:
+                        if val in visited.keys():
+                            if key in visited.keys():
+                                min_dist = min(min_dist, visited[key] + dist)
+                            break
+
+            if min_dist == float('inf'):
+                return "NO SUCH ROUTE"
+            return min_dist
+
+        if dest in visited.keys():
+            return visited[dest]
+        return "NO SUCH ROUTE"
 
 
     def shortest_route(self, start, dest):
         """
         Calculate the shortest distance between two streets by using Dijkstra's algorithm.
+        E.g.
+            satNat = SatNat()
+
+            print satNat.shortest_route("A", "C")
+            9
+
+            print satNat.shortest_route("B", "B")
+            9
+
+            print satNat.normal_route("D", "A")
+            NO SUCH ROUTE
         """
 
         return self.__dijkstra(start, dest)
@@ -171,6 +204,27 @@ class SatNavTest(unittest.TestCase):
 
     def testShortestRoute1(self):
         self.assertEqual(9, self.satNav.shortest_route("A", "C"))
+
+    def testShortestRoute2(self):
+        self.assertEqual(9, self.satNav.shortest_route("B", "B"))
+
+    def testShortestRoute3(self):
+        self.assertEqual("NO SUCH ROUTE", self.satNav.shortest_route("D", "A"))
+
+    def testShortestRoute4(self):
+        self.assertEqual("NO SUCH ROUTE", self.satNav.shortest_route("A", "A"))
+
+    def testShortestRoute5(self):
+        self.assertEqual(7, self.satNav.shortest_route("C", "D"))
+
+    def testShortestRoute6(self):
+        self.assertEqual(9, self.satNav.shortest_route("C", "C"))
+
+    def testShortestRoute7(self):
+        self.assertEqual(15, self.satNav.shortest_route("D", "D"))
+
+    def testShortestRoute8(self):
+        self.assertEqual(9, self.satNav.shortest_route("E", "E"))
 
     def tearDown(self):
         pass
