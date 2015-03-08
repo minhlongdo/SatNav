@@ -1,7 +1,6 @@
 #/usr/bin/python
 
 import unittest
-from Queue import PriorityQueue
 
 class SatNav:
     """
@@ -41,14 +40,6 @@ class SatNav:
                 graph[start][start] = None
             else:
                 graph[start][dest] = length
-        # Mark all other streets that were left out with -1
-        # To indicate there is no direct connection
-        for key in graph.keys():
-            if graph[key].keys() != len(all_streets):
-                recorded = graph[key].keys()
-                diff = all_streets.difference(recorded)
-                for d in diff:
-                    graph[key][d] = None
 
         return graph
 
@@ -85,15 +76,14 @@ class SatNav:
 
     def __dijkstra(self, start, dest):
         """
-        Dijkstra algorithm.
+        Using Dijkstra's algorithm since it can be safely assumed that there are no negative distance values.
         """
         # Check if starting and destination nodes exist
         if start not in self.routes.keys():
             raise TypeError("Root cannot be found in graph.")
         if dest not in self.routes.keys():
             raise TypeError("Destination cannot be found in graph.")
-            pass
-
+        pass
 
 
     def shortest_route(self, start, dest):
