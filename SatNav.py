@@ -67,7 +67,13 @@ class SatNav:
         length = 0
         for x in range(1, len(route)):
             start, dest = route[x-1], route[x]
-            if self.routes[start][dest] is not None:
+
+            if start not in self.routes:
+                return "NO SUCH ROUTE"
+            if dest not in self.routes:
+                return "NO SUCH ROUTE"
+
+            if dest in self.routes[start]:
                 length += self.routes[start][dest]
             else:
                 return "NO SUCH ROUTE"
