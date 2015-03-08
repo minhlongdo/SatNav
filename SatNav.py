@@ -7,53 +7,68 @@ class SatNav:
     """
     Attributes
     ----------
-    
+
     Examples
     --------
     """
     def __init__(self, streets = ['AB5', 'BC4', 'CD7', 'DC8', 'DE6', 'AD5', 'CE2', 'EB3', 'AE7']):
         """
         This initialize the SatNav with the routes and its given distances.
-        
+
         E.g AB4 - A -> B = 4 - distance from A to B is 4, but not B to A.
-        
+
         Args:
             streets (list): A list of street names. Default to ['AB5', 'BC4', 'CD7', 'DC8', 'DE6', 'AD5', 'CE2', 'EB3', 'AE7']
         """
         self.routes = self.__construct_graph(streets)
 
-    
+
     def __split_nodes(self, street):
         # Split up the information with the length between 2 routes
         return street[0], street[1], int(street[2:])
 
-    
+
     def __construct_graph(self, streets):
         graph = dict()
+        all_streets = set()
         for street in streets:
             # Extract start and destination streets and their length
             start, dest, length = self.__split_nodes(street)
+            all_streets.add(start)
+            all_streets.add(dest)
             if start not in graph.keys():
                 graph[start] = {dest:length}
+                graph[start][start] = -1
             else:
                 graph[start][dest] = length
+        # Mark all other streets that were left out with -1
+        # To indicate there is no direct connection
+        for key in graph.keys():
+            if graph[key].keys() != len(all_streets):
+                recorded = graph[key].keys()
+                diff = all_streets.difference(recorded)
+                print "Key:", start
+                print "Diff:", diff, "\n"
+                for d in diff:
+                    graph[key][d] = -1
+
         return graph
-            
-        
-    
+
+
+
     def normal_route(self, route):
         """
         Use this function only if there is a specific order the route has to be traversed.
         Expected input format: ABC
         E.g.
             satNat = SatNat()
-            
+
             print normal_route("ABC")
             9
-            
+
             print satNat.normal_route("AD")
             5
-            
+
             print satNat.normal_route("ADC")
             13
 
@@ -63,13 +78,8 @@ class SatNav:
         length = 0
         for x in range(1, len(route)):
             start, dest = route[x-1], route[x]
-            # Check if the starting street exists
-            if start in self.routes.keys():
-                # Check if the starting street to destination point exists
-                if dest in self.routes[start].keys():
-                    length += self.routes[start][dest]
-                else:
-                    return "NO SUCH ROUTE"
+            if self.routes[start][dest] > 0:
+                length += self.routes[start][dest]
             else:
                 return "NO SUCH ROUTE"
         return length
@@ -85,8 +95,8 @@ class SatNav:
         if dest not in self.routes:
             raise TypeError("Destination cannot be found in graph.")
         pass
-        
-    
+
+
     def shortest_route(self, start, dest):
         """
         Calculate the shortest distance between two streets.
@@ -114,7 +124,7 @@ class SatNav:
             int: Number of minimum junctions, -1 otherwise.
         """
         # Generate all possible paths
-        
+
         pass
 
 
@@ -138,7 +148,7 @@ class SatNavTest(unittest.TestCase):
     def setUp(self):
         # With the given test data
         self.satNav = SatNav(streets = ['AB5', 'BC4', 'CD7', 'DC8', 'DE6', 'AD5', 'CE2', 'EB3', 'AE7'])
-    
+
     def testNormalRoute1(self):
         self.assertEqual(9, self.satNav.normal_route("ABC"))
 
@@ -156,7 +166,7 @@ class SatNavTest(unittest.TestCase):
 
     def tearDown(self):
         pass
-        
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
