@@ -2,6 +2,7 @@
 
 import unittest
 import itertools
+import Queue
 
 class SatNav:
 
@@ -151,73 +152,32 @@ class SatNav:
         return self.__dijkstra(start, dest)
 
 
-    def __find_all_paths(self, start, end, junction, path=[]):
+    def __dfs(self, start, end, hops):
         """
-        Find all paths from starting to end vertex.
+        Modified depth-first search.
         """
-        path = path + [start]
-        if start == end:
-            return [path]
-
-        if start not in self.routes:
-            return []
-
-        paths = []
-        for vertex in self.routes[start]:
-            #if vertex not in path:
-            extended_paths = self.__find_all_paths(vertex, end, junction, path)
-            if
-            for p in extended_paths:
-
-                paths.append(p)
-        return paths
-
-
-    def __tarjan(self, start):
-        # Start and destination streets are the same
-        pass
+        if hops == 0:
+            if start == end:
+                return 1
+            else:
+                return 0
+        else:
+            x = 0
+            for child in self.routes[start].keys():
+                x += self.__dfs(child, end, hops-1)
+            return x
 
 
     def find_route_with_junctions(self, start, dest, junctions, exact):
-
-        end_streets = []
-        # If destination and starting points are the same
-        if start == dest:
-            # Find all streets that points to the starting street
-            for key in self.routes.keys():
-                if start in self.routes[key].keys():
-                    end_streets.append(key)
-        else:
-            end_streets.append(dest)
-
-        all_routes = []
-
-        # Go through all pre-end streets before reaching
-        for street in end_streets:
-            routes = self.__find_all_paths(start, street, junctions)
-            all_routes += routes
-
-        count = []
-        # Different handling if start and destination are the same
         if exact:
-            if start == dest:
-                for x in all_routes:
-                    if len(x)+1 == junctions:
-                        count.append(x)
-            else:
-                for x in all_routes:
-                    if len(x) == junctions:
-                        count.append(x)
+            return self.__dfs(start, dest, junctions)
         else:
-            if start == dest:
-                for x in all_routes:
-                    if len(x)+1 == junctions:
-                        count.append(x)
-            else:
-                for x in all_routes:
-                    if len(x) <= junctions:
-                        count.append(x)
-        return all_routes, count
+            total = 0
+            while junctions > 0:
+                total += self.__dfs(start, dest, junctions)
+                junctions -= 1
+            return total
+
 
     def number_of_routes(self, start, dest, threshold):
         """
@@ -281,6 +241,9 @@ class SatNavTest(unittest.TestCase):
 
     def testExactJunction1(self):
         self.assertEqual(3, self.satNav.find_route_with_junctions("A", "C", 4, exact=True))
+
+    def testExactJunctions2(self):
+        self.assertEqual(2, self.satNav.find_route_with_junctions("C", "C", 3, exact=False))
 
     def tearDown(self):
         pass
