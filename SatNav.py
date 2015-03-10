@@ -179,7 +179,32 @@ class SatNav:
             return total
 
 
-    def number_of_routes(self, start, dest, threshold):
+    def __dfs_length_route(self, start, end, threshold):
+        """
+        Modified depth-first search.
+        """
+        # If threshold is equal or less than 0
+        # Then there are 2 possible options:
+        # Either the current node is the same as the required destination node
+        # and the current threshold count is 0
+        # then add 1 (a route has been found), otherwise 0 (route is a failure)
+        if threshold <= 0:
+            if start == end and threshold == 0:
+                return 1
+            else:
+                return 0
+        else:
+            x = 0
+            # Get all child nodes from parent node
+            for child in self.routes[start].keys():
+                # recursively call the function with the child node as its starting point
+                # subtract threshold with the cost of the distance between parent and child node
+                x += self.__dfs_length_route(child, end, threshold-self.routes[start][child])
+            return x
+
+    # Find number of routes with a specific treshold if exact == True
+    # Otherwise less than the specified threshold
+    def number_of_routes(self, start, dest, threshold, exact):
         """
         Calculate the total possible different routes from starting to destination street
         less than the specified threshold.
@@ -189,9 +214,21 @@ class SatNav:
             dest (str): Destination street.
 
         Returns:
-            int: Total possible different routes, -1 otherwise.
+            int: Total possible different routes
         """
-        pass
+        # If a length if specified
+        if exact:
+            return self.__dfs_length_route(start, dest, threshold)
+        # Otherwise everything below the threshold
+        # E.g. length of route < 30
+        else:
+            routes = 0
+            # Iterating from 1 ... threshold-1 to find route
+            for x in range(1, threshold):
+                temp = self.__dfs_length_route(start, dest, x)
+                routes += temp
+            # Total number of routes found less than the threshold
+            return routes
 
 
 class SatNavTest(unittest.TestCase):
@@ -242,8 +279,20 @@ class SatNavTest(unittest.TestCase):
     def testExactJunction1(self):
         self.assertEqual(3, self.satNav.find_route_with_junctions("A", "C", 4, exact=True))
 
-    def testExactJunctions2(self):
+    def testMaxJunctions2(self):
         self.assertEqual(2, self.satNav.find_route_with_junctions("C", "C", 3, exact=False))
+
+    def testLessLengthRoute1(self):
+        self.assertEqual(9, self.satNav.number_of_routes("C", "C", 30, exact=False))
+
+    def testLessLengthRoute2(self):
+        self.assertEqual(1, self.satNav.number_of_routes("A", "C", 12, exact=False))
+
+    def testExactLengthRoute1(self):
+        self.assertEqual(1, self.satNav.number_of_routes("E", "C", 7, exact=True))
+
+    def testExactLengthRoute2(self):
+        self.assertEqual(2, self.satNav.number_of_routes("A", "E", 11, exact=True))
 
     def tearDown(self):
         pass
