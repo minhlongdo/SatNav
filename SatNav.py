@@ -162,9 +162,10 @@ class SatNav:
             NO SUCH ROUTE
         """
         # Check for valid input
-        if start not in self.routes():
+        # Raises Exception
+        if start not in self.routes:
             raise Exception("Starting point does not exist.")
-        if dest not in self.routes():
+        if dest not in self.routes:
             raise Exception("Destination point does not exist.")
         # Run Dijkstra algorithm to find shortest path.
         return self.__dijkstra(start, dest)
@@ -196,9 +197,9 @@ class SatNav:
         # Check for valid input
         if junctions <= 0:
             raise ValueError("Value of junction has to be greater than 0.")
-        if start not in self.routes():
+        if start not in self.routes:
             raise Exception("Starting point does not exist.")
-        if dest not in self.routes():
+        if dest not in self.routes:
             raise Exception("Destination point does not exist.")
 
         # If exact is True then the number of junctions has to equal to the specified one in order it to be a valid route
@@ -252,6 +253,7 @@ class SatNav:
             int: Total possible different routes
         """
         # Check for valid input
+        # Raises Exception
         if threshold <= 0:
             raise ValueError("Threshold has to be greater than 0.")
         if start not in self.routes:
