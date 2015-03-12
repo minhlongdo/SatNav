@@ -30,8 +30,11 @@ class SatNav:
             # Records name of streets
             all_streets.add(start)
             all_streets.add(dest)
+            # If the starting element does not exists
+            # Create a new one in the dictionary with the destination and length
             if start not in graph.keys():
                 graph[start] = {dest:length}
+            # Append destination and its length to the starting element in the dictionary
             else:
                 graph[start][dest] = length
 
@@ -58,14 +61,18 @@ class SatNav:
             NO SUCH ROUTE
         """
         length = 0
+        # Iterate from the first to the n-1 element of the string
         for x in range(1, len(route)):
+            # The previous element of the current element is the starting point
+            # Current element is the destination point
             start, dest = route[x-1], route[x]
-
+            # If the previous element does not exists
             if start not in self.routes.keys():
                 return "NO SUCH ROUTE"
+            # If the destination element does not exists
             if dest not in self.routes[start].keys():
                 return "NO SUCH ROUTE"
-
+            # Otherwise look up in the dictionary for the length from the starting element to the destination element
             length += self.routes[start][dest]
 
         return length
@@ -85,10 +92,14 @@ class SatNav:
         unvisited[current] = currentDistance
 
         while True:
+            # Go through all neighbours off the current node
             for neighbour, distance in self.routes[current].items():
                 if neighbour not in unvisited:
                     continue
+                # Calculate new distance
                 newDistance = currentDistance + distance
+                # If the unvisited neighbour's value is None or greater than the new distance
+                # Replace the value with new distance
                 if unvisited[neighbour] is None or unvisited[neighbour] > newDistance:
                     unvisited[neighbour] = newDistance
             # Record visited node with its distance
@@ -119,13 +130,17 @@ class SatNav:
             for key in self.routes.keys():
                 # Check if this node is connected to the starting node
                 if dest in self.routes[key]:
+                    # If the starting point is in the visited key (meaning it is reachable from the origin)
                     if key in visited.keys():
+                        # Then get the minimum value, between the current min. distance and the new one
                         min_dist = min(min_dist, visited[key] + self.routes[key][dest])
-
+            # If the distance does not exists, return no such route
+            # The distance value is infinity
             if min_dist == float('inf'):
                 return "NO SUCH ROUTE"
             return min_dist
 
+        # If the destination exists in the visited record, return the distance
         if dest in visited.keys():
             return visited[dest]
         return "NO SUCH ROUTE"
@@ -146,7 +161,7 @@ class SatNav:
             print satNat.normal_route("D", "A")
             NO SUCH ROUTE
         """
-
+        # Run Dijkstra algorithm to find shortest path.
         return self.__dijkstra(start, dest)
 
 
@@ -154,23 +169,32 @@ class SatNav:
         """
         Modified depth-first search.
         """
+        # If the number of hops (junctions) reaches 0 - base case
         if hops == 0:
+            # If the current node and the destination are equal to each other
+            # Return 1
             if start == end:
                 return 1
+            # Otherwise 0
             else:
                 return 0
         else:
             x = 0
+            # Go through each child of the parent node
             for child in self.routes[start].keys():
+                # Add result, call __dfs recursively
                 x += self.__dfs(child, end, hops-1)
             return x
 
 
     def find_route_with_junctions(self, start, dest, junctions, exact):
+        # If exact is True then the number of junctions has to equal to the specified one in order it to be a valid route
+        # Otherwise, the number of junctions have to be equal or less than the specified junctions
         if exact:
             return self.__dfs(start, dest, junctions)
         else:
             total = 0
+            # Go through each possible junction number from 1 - max. junction number (specified junction value) and add them together
             while junctions > 0:
                 total += self.__dfs(start, dest, junctions)
                 junctions -= 1
