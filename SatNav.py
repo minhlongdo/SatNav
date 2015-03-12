@@ -161,6 +161,11 @@ class SatNav:
             print satNat.normal_route("D", "A")
             NO SUCH ROUTE
         """
+        # Check for valid input
+        if start not in self.routes():
+            raise Exception("Starting point does not exist.")
+        if dest not in self.routes():
+            raise Exception("Destination point does not exist.")
         # Run Dijkstra algorithm to find shortest path.
         return self.__dijkstra(start, dest)
 
@@ -188,6 +193,14 @@ class SatNav:
 
 
     def find_route_with_junctions(self, start, dest, junctions, exact):
+        # Check for valid input
+        if junctions <= 0:
+            raise ValueError("Value of junction has to be greater than 0.")
+        if start not in self.routes():
+            raise Exception("Starting point does not exist.")
+        if dest not in self.routes():
+            raise Exception("Destination point does not exist.")
+
         # If exact is True then the number of junctions has to equal to the specified one in order it to be a valid route
         # Otherwise, the number of junctions have to be equal or less than the specified junctions
         if exact:
@@ -238,6 +251,14 @@ class SatNav:
         Returns:
             int: Total possible different routes
         """
+        # Check for valid input
+        if threshold <= 0:
+            raise ValueError("Threshold has to be greater than 0.")
+        if start not in self.routes:
+            raise Exception("Starting point does not exist.")
+        if dest not in self.routes:
+            raise Exception("Destination point does not exist.")
+
         # If a length if specified
         if exact:
             return self.__dfs_length_route(start, dest, threshold)
