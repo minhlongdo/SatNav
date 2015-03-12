@@ -1,8 +1,6 @@
 #/usr/bin/python
 
 import unittest
-import itertools
-import Queue
 
 class SatNav:
 
