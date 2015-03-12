@@ -286,11 +286,17 @@ class SatNavTest(unittest.TestCase):
     def testLessLengthRoute2(self):
         self.assertEqual(1, self.satNav.number_of_routes("A", "C", 12, exact=False))
 
+    def testLessLengthRoute3(self):
+        self.assertEqual(0, self.satNav.number_of_routes("A", "A", 30, exact=False))
+
     def testExactLengthRoute1(self):
         self.assertEqual(1, self.satNav.number_of_routes("E", "C", 7, exact=True))
 
     def testExactLengthRoute2(self):
         self.assertEqual(2, self.satNav.number_of_routes("A", "E", 11, exact=True))
+
+    def testExactLengthRoute3(self):
+        self.assertEqual(0, self.satNav.number_of_routes("A", "A", 10, exact=True))
 
     def tearDown(self):
         pass
